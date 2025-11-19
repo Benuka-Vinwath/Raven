@@ -1,7 +1,8 @@
 import { useState } from "react";
-import {supabase} from "./SupabaseClient";
+import { supabase } from "./SupabaseClient";
 import "./Rating.css";
-
+import { useNavigate } from "react-router-dom";
+import { Camera } from "lucide-react";
 
 export default function RatingForm() {
   const [rating, setRating] = useState(0);
@@ -11,38 +12,36 @@ export default function RatingForm() {
   const [submitted, setSubmitted] = useState(false);
   const id = 1;
 
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!rating || !name || !comment) {
       alert("Please fill out all fields and select a rating!");
       return;
     }
-    const{data,error} = await supabase.from("feedBacks").insert([
-    {
-      
-      Name:name,
-      Comment:comment,
-      Rating:rating
-    },
+    const { data, error } = await supabase.from("feedBacks").insert([
+      {
+        Name: name,
+        Comment: comment,
+        Rating: rating,
+      },
     ]);
-    if(error)
-    {
-      console.log("Error inserting data:",error)
-      alert("Failed to submit the feedback, Try again!")
-    }else{
-      console.log("Inserted:", data)
+    if (error) {
+      console.log("Error inserting data:", error);
+      alert("Failed to submit the feedback, Try again!");
+    } else {
+      console.log("Inserted:", data);
       setSubmitted(true);
 
-      setTimeout(()=>{
-        setSubmitted(false)
+      setTimeout(() => {
+        setSubmitted(false);
         setRating(0);
         setHover(0);
         setName("");
         setComment("");
-      },3000);
+      }, 3000);
     }
   };
-  
 
   return (
     <div className="rating-container">
@@ -91,6 +90,10 @@ export default function RatingForm() {
           <button type="submit">Submit</button>
         </form>
       )}
+
+      <button onClick={() => navigate("/videofeedback")}>
+        <Camera size={50} className="cursor-pointer" color="#333" />
+      </button>
     </div>
   );
 }
