@@ -1,8 +1,3 @@
-import { useState } from "react";
-import {supabase} from "./SupabaseClient";
-import "./Rating.css";
-
-
 export default function RatingForm() {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
