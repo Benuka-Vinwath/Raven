@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "./SupabaseClient";
-import "./FeedbackDisplay.css";
 
 const FeedBacksDisplay = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -13,12 +12,15 @@ const FeedBacksDisplay = () => {
         .select("*")
         .order("id", { ascending: false });
 
+      console.log("DATA:", data, "ERROR:", error);
+
       if (error) {
         console.error("Error fetching feedbacks:", error);
       } else {
         setFeedbacks(data || []);
       }
 
+      // Only run once for initial load
       if (loading) setLoading(false);
     };
 
@@ -43,32 +45,16 @@ const FeedBacksDisplay = () => {
   if (loading) return <p>Loading feedbacks...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1 style={{ marginBottom: "20px" }}>User Feedbacks</h1>
+    <div>
+      <h1>User FeedBacks</h1>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      <div>
         {feedbacks.length > 0 ? (
           feedbacks.map((fb) => (
-            <div className="feedback-card" key={fb.id}>
-              <div className="feedback-header">
-                <div className="feedback-avatar">
-                  {fb.Name?.charAt(0).toUpperCase()}
-                </div>
-
-                <div className="feedback-name">{fb.Name}</div>
-              </div>
-
-              <div className="feedback-stars">
-                {"⭐".repeat(fb.Rating)}
-              </div>
-
-              <div className="feedback-text">{fb.Comment}</div>
-
-              <div className="feedback-date">
-                {fb.created_at
-                  ? fb.created_at.slice(0, 10)
-                  : "Unknown date"}
-              </div>
+            <div key={fb.id}>
+              <h2>{fb.Name}</h2>
+              <p>{fb.Comment}</p>
+              {fb.Rating && <div>{"⭐".repeat(fb.Rating)}</div>}
             </div>
           ))
         ) : (

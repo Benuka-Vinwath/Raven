@@ -1,0 +1,108 @@
+/* ----------------------------- */
+/* PREMIUM GLASS FEEDBACK CARD   */
+/* ----------------------------- */
+
+.feedback-card {
+  width: 280px;
+  padding: 20px;
+  border-radius: 22px;
+
+  /* GLASS UI */
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+
+  /* SHADOW + FLOAT */
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+  animation: floatIn 0.7s ease forwards, floatPulse 4s ease-in-out infinite;
+
+  opacity: 0;
+  transform: translateY(15px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Hover Glow */
+.feedback-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.18);
+}
+
+/* Fade + Float Entrance */
+@keyframes floatIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Gentle Floating Motion (Loop) */
+@keyframes floatPulse {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+/* ----------------------------- */
+/* HEADER (Icon + Name)          */
+/* ----------------------------- */
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* Glassy Avatar Icon */
+.feedback-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+  font-weight: 700;
+  color: #008cff;
+
+  box-shadow: 0 4px 12px rgba(0, 140, 255, 0.25);
+}
+
+.feedback-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* ----------------------------- */
+/* STARS + TEXT                  */
+/* ----------------------------- */
+
+.feedback-stars {
+  margin: 6px 0;
+  font-size: 18px;
+  color: #ffdf44; /* premium yellow */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+.feedback-text {
+  font-size: 15px;
+  line-height: 1.45;
+  color: #eaeaea;
+  margin-bottom: 12px;
+}
+
+/* ----------------------------- */
+/* DATE (subtle grey)            */
+/* ----------------------------- */
+
+.feedback-date {
+  font-size: 12px;
+  color: #cccccc;
+  opacity: 0.8;
+}

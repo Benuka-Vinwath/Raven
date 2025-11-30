@@ -45,45 +45,7 @@ export default function RatingForm() {
   
 
   return (
-    <>
-    <div className="tree-bg tree-1">🌳</div>
-    <div className="tree-bg tree-2">🌳</div>
-    <div className="tree-bg tree-3">🌳</div>
-    <div className="tree-bg tree-4">🌳</div>      
-    <div className="tree-bg tree-5">🌳</div>
-    
-    <div className="leaf leaf-1">🍃</div>
-    <div className="leaf leaf-2">🍃</div>
-    <div className="leaf leaf-3">🍃</div>
-    <div className="leaf leaf-4">🍃</div>      
-    <div className="leaf leaf-5">🍃</div>
-
-    <div className="sparkle sparkle-1">✨</div>
-      <div className="sparkle sparkle-2">✨</div>
-      <div className="sparkle sparkle-3">✨</div>
-      <div className="sparkle sparkle-4">✨</div>
-      <div className="sparkle sparkle-5">✨</div>
-      <div className="sparkle sparkle-6">✨</div>
-      <div className="sparkle sparkle-7">✨</div>
-      <div className="sparkle sparkle-8">✨</div>
-
-      {/* Floating Circles (Bokeh) */}
-      <div className="circle-bg circle-1"></div>
-      <div className="circle-bg circle-2"></div>
-      <div className="circle-bg circle-3"></div>
-      <div className="circle-bg circle-4"></div>
-
-      {/* Floating Butterflies */}
-      <div className="butterfly butterfly-1">🦋</div>
-      <div className="butterfly butterfly-2">🦋</div>
-
-      {/* Floating Flowers */}
-      <div className="flower flower-1">🌸</div>
-      <div className="flower flower-2">🌸</div>
-      <div className="flower flower-3">🌸</div>
-    
     <div className="rating-container">
-      <h1 className="main-title">Guest Book</h1>
       <h2>Leave Your Feedback</h2>
 
       {submitted ? (
@@ -130,6 +92,5 @@ export default function RatingForm() {
         </form>
       )}
     </div>
-    </>
   );
 }
