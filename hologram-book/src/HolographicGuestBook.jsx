@@ -1,42 +1,7 @@
 // src/HolographicGuestBook.jsx
 import React, { useEffect, useRef, useState } from "react";
 import "./HolographicGuestBook.css";
-
-// SAMPLE COMMENTS (no database)
-const commentsData = [
-  {
-    name: "ALEX JOHNSON",
-    tagline: "Product Designer",
-    comment:
-      "This holographic guest book feels magical. The animations are silky smooth and genuinely delightful.",
-    rating: 5,
-    timestamp: "2 minutes ago",
-  },
-  {
-    name: "PRIYA DESILVA",
-    tagline: "Event Host",
-    comment:
-      "Our guests loved seeing their messages float by in real time. It adds so much personality to the venue.",
-    rating: 5,
-    timestamp: "11 minutes ago",
-  },
-  {
-    name: "MIGUEL RODRIGUEZ",
-    tagline: "Digital Artist",
-    comment:
-      "The subtle holographic glow and motion are beautiful. It looks like a book made of light.",
-    rating: 4,
-    timestamp: "24 minutes ago",
-  },
-  {
-    name: "SARAH LEE",
-    tagline: "Developer",
-    comment:
-      "Super intuitive. I appreciate how the ratings and comments stay legible even with all the effects.",
-    rating: 5,
-    timestamp: "42 minutes ago",
-  },
-];
+import { supabase } from "./supabaseClient";
 
 const SWITCH_INTERVAL = 4500; // ms
 
@@ -44,7 +9,26 @@ function createStarArray(rating, max = 5) {
   return Array.from({ length: max }, (_, i) => (i + 1 <= rating ? "★" : "☆"));
 }
 
+// Helper function to format timestamp
+function formatTimestamp(timestamp) {
+  const now = new Date();
+  const date = new Date(timestamp);
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+  
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+}
+
 export function HolographicGuestBook() {
+  const [commentsData, setCommentsData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
   const [mostCommonRating, setMostCommonRating] = useState(5);
@@ -55,9 +39,55 @@ export function HolographicGuestBook() {
   const wrapperRef = useRef(null);
 
   const totalEntries = commentsData.length;
-  const currentComment = commentsData[currentIndex];
+  const currentComment = commentsData[currentIndex] || {};
 
-  // Calculate stats once
+  // Fetch comments from Supabase
+  useEffect(() => {
+    fetchComments();
+    
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('comments_channel')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'comments' },
+        () => {
+          fetchComments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const fetchComments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform data to match component structure
+      const transformedData = data.map(item => ({
+        name: item.name || 'Anonymous',
+        tagline: item.tagline || item.title || 'Guest',
+        comment: item.comment || item.feedback || item.message || '',
+        rating: item.rating || 5,
+        timestamp: formatTimestamp(item.created_at || item.timestamp)
+      }));
+
+      setCommentsData(transformedData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      setLoading(false);
+    }
+  };
+
+  // Calculate stats when comments change
   useEffect(() => {
     if (!commentsData.length) return;
     const sum = commentsData.reduce((acc, c) => acc + c.rating, 0);
@@ -70,14 +100,16 @@ export function HolographicGuestBook() {
     });
     const mostCommon = Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0];
     setMostCommonRating(Number(mostCommon || 5));
-  }, []);
+  }, [commentsData]);
 
   // Auto rotate comments
   useEffect(() => {
-    startAutoRotate();
+    if (commentsData.length > 0) {
+      startAutoRotate();
+    }
     return () => stopAutoRotate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [commentsData.length]);
 
   const startAutoRotate = () => {
     stopAutoRotate();
@@ -125,6 +157,47 @@ export function HolographicGuestBook() {
     { top: "20%", left: "4%" },  // upper-left side
     { top: "76%", left: "88%" }, // lower-right side
   ];
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="gb-body">
+        <div className="guest-book-wrapper">
+          <div className="glow-ring" />
+          <section className="guest-book">
+            <div className="left-page">
+              <h1 className="title">Guest Book</h1>
+              <p className="subtitle">Loading...</p>
+            </div>
+            <div className="right-page">
+              <h2>Fetching entries...</h2>
+            </div>
+          </section>
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if no comments
+  if (commentsData.length === 0) {
+    return (
+      <div className="gb-body">
+        <div className="guest-book-wrapper">
+          <div className="glow-ring" />
+          <section className="guest-book">
+            <div className="left-page">
+              <h1 className="title">Guest Book</h1>
+              <p className="subtitle">Be the first to leave a comment!</p>
+            </div>
+            <div className="right-page">
+              <h2>No entries yet</h2>
+              <p>Your feedback will appear here.</p>
+            </div>
+          </section>
+        </div>
+      </div>
+    );
+  }
 
 
   return (
