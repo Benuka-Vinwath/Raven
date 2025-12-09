@@ -1,6 +1,8 @@
+// src/HolographicGuestBook.jsx
 import React, { useEffect, useRef, useState } from "react";
 import "./HolographicGuestBook.css";
 
+// SAMPLE COMMENTS (no database)
 const commentsData = [
   {
     name: "ALEX JOHNSON",
@@ -48,13 +50,16 @@ export function HolographicGuestBook() {
   const [mostCommonRating, setMostCommonRating] = useState(5);
   const intervalRef = useRef(null);
 
+  // parallax for floating comments
+  const [parallax, setParallax] = useState({ x: 0, y: 0 });
+  const wrapperRef = useRef(null);
+
   const totalEntries = commentsData.length;
   const currentComment = commentsData[currentIndex];
 
-  // Calculate stats once on mount
+  // Calculate stats once
   useEffect(() => {
     if (!commentsData.length) return;
-
     const sum = commentsData.reduce((acc, c) => acc + c.rating, 0);
     const avg = sum / commentsData.length;
     setAverageRating(avg);
@@ -86,19 +91,91 @@ export function HolographicGuestBook() {
   };
 
   const avgStars = createStarArray(Math.round(averageRating));
-  const currentStars = createStarArray(currentComment.rating);
-
   const formattedIndex = `${String(currentIndex + 1).padStart(2, "0")} / ${String(
     totalEntries
   ).padStart(2, "0")}`;
 
+  // mouse parallax handlers
+  const handleMouseMove = (e) => {
+    if (!wrapperRef.current) return;
+    const rect = wrapperRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const x = (e.clientX - centerX) / rect.width;
+    const y = (e.clientY - centerY) / rect.height;
+
+    setParallax({
+      x: x * 30,
+      y: y * 20,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setParallax({ x: 0, y: 0 });
+  };
+
+    const floatingPositions = [
+    { top: "2%", left: "-19%" },   // top-left
+    { top: "4%", left: "98%" },  // top-right
+    { top: "82%", left: "-19%" }, // bottom-left
+    { top: "88%", left: "96%" }, // bottom-right
+    { top: "46%", left: "-19%" },  // left middle
+    { top: "50%", left: "95%" }, // right middle
+    { top: "20%", left: "4%" },  // upper-left side
+    { top: "76%", left: "88%" }, // lower-right side
+  ];
+
+
   return (
     <div className="gb-body">
-      <div className="guest-book-wrapper">
+      <div
+        className="guest-book-wrapper"
+        ref={wrapperRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
         <div className="glow-ring" />
         <div className="scanline" />
 
-        {/* Optional particles */}
+        {/* Depth parallax floating comments around dashboard */}
+        {commentsData.length > 0 && (
+          <div
+            className="floating-comments-layer"
+            style={{
+              transform: `translate3d(${parallax.x}px, ${parallax.y}px, 0)`,
+            }}
+          >
+{commentsData.slice(0, 8).map((comment, index) => {
+  const pos = floatingPositions[index % floatingPositions.length];
+  return (
+  <div
+    key={index}
+    className="parallax-comment"
+    style={{
+      top: pos.top,
+      left: pos.left,
+    }}
+
+
+              >
+                <div className="pc-stars">
+                  {createStarArray(comment.rating).map((star, i) => (
+                    <span key={i}>{star}</span>
+                  ))}
+                </div>
+                <div className="pc-text">
+                  {comment.comment.length > 60
+                    ? comment.comment.slice(0, 60) + "…"
+                    : comment.comment}
+                </div>
+              </div>
+            );
+            })}
+          </div>
+        )}
+
+        {/* decorative particles */}
         <div
           className="particle"
           style={{ top: "20%", left: "14%", animationDelay: "-2s" }}
@@ -112,6 +189,7 @@ export function HolographicGuestBook() {
           style={{ top: "50%", left: "30%", animationDelay: "-6s" }}
         />
 
+        {/* MAIN HOLOGRAPHIC BOOK */}
         <section className="guest-book">
           {/* LEFT PAGE */}
           <div className="left-page">
@@ -189,7 +267,9 @@ export function HolographicGuestBook() {
                       <p className="comment-body">{comment.comment}</p>
 
                       <div className="comment-footer">
-                        <div className="timeline-dot">{comment.timestamp}</div>
+                        <div className="timeline-dot">
+                          {comment.timestamp || "live"}
+                        </div>
                         <div className="auto-scroll-indicator">
                           <span />
                           <span />

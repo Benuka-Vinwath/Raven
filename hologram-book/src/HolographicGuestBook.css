@@ -59,7 +59,7 @@
   mix-blend-mode: soft-light;
   opacity: 0.3;
   pointer-events: none;
-  z-index: 3;
+  z-index: 4;
 }
 
 .guest-book {
@@ -565,6 +565,187 @@
     opacity: 0;
   }
 }
+
+/* ---------- FLOATING BACKGROUND COMMENTS (SCREEN CORNERS) ---------- */
+
+.floating-comments-bg {
+  position: fixed;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 10; /* above everything */
+}
+
+.floating-comment {
+  position: fixed;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.25),
+      transparent 90%
+    ),
+    rgba(8, 14, 40, 0.92);
+  border: 1px solid rgba(190, 252, 255, 0.35);
+  box-shadow:
+    0 0 16px rgba(117, 255, 242, 0.3),
+    0 20px 50px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(14px);
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(235, 240, 255, 0.95);
+  opacity: 0.5;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.floating-comment:hover {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+.floating-comment.corner-tl {
+  top: 40px;
+  left: 40px;
+}
+
+.floating-comment.corner-tr {
+  top: 40px;
+  right: 40px;
+}
+
+.floating-comment.corner-bl {
+  bottom: 40px;
+  left: 40px;
+}
+
+.floating-comment.corner-br {
+  bottom: 40px;
+  right: 40px;
+}
+
+@media (max-width: 800px) {
+  .floating-comment.corner-tl,
+  .floating-comment.corner-tr {
+    top: 20px;
+  }
+  
+  .floating-comment.corner-bl,
+  .floating-comment.corner-br {
+    bottom: 20px;
+  }
+  
+  .floating-comment.corner-tl,
+  .floating-comment.corner-bl {
+    left: 20px;
+  }
+  
+  .floating-comment.corner-tr,
+  .floating-comment.corner-br {
+    right: 20px;
+  }
+}
+
+/* little stars on each bubble */
+.fc-stars {
+  display: flex;
+  gap: 2px;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.fc-stars span {
+  background: var(--holo-gradient);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.fc-text {
+  font-size: 11px;
+}
+
+/* Main wandering animation: moves in a loose orbit + slight rotation */
+@keyframes float-orbit {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.9) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.32;
+  }
+  25% {
+    transform: translate3d(40px, -40px, 0) scale(1) rotate(3deg);
+  }
+  50% {
+    transform: translate3d(10px, -90px, 0) scale(1.03) rotate(-2deg);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translate3d(-40px, -40px, 0) scale(1) rotate(-4deg);
+    opacity: 0.25;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.95) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+/* ---------- DEPTH PARALLAX FLOATING COMMENTS ---------- */
+
+.floating-comments-layer {
+  position: absolute;
+  inset: -40px;
+  pointer-events: none;
+  z-index: 2; /* behind the book, but above background */
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.parallax-comment {
+  position: absolute;
+  min-width: 180px;
+  max-width: 260px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.22),
+      transparent 30%
+    ),
+    rgba(6, 10, 30, 0.88);
+  border: 1px solid rgba(180, 245, 255, 0.3);
+  box-shadow:
+    0 0 16px rgba(117, 255, 242, 0.25),
+    0 20px 40px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(225, 235, 255, 0.9);
+  opacity: 0.70;
+}
+
+/* stars row inside parallax comments */
+.pc-stars {
+  display: flex;
+  gap: 2px;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.pc-stars span {
+  background: var(--holo-gradient);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.pc-text {
+  font-size: 11px;
+}
+
+.parallax-comment:hover {
+  opacity: 0.0npm;
+}
+
 
 /* RESPONSIVE */
 
