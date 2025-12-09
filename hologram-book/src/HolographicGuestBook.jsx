@@ -45,16 +45,19 @@ export function HolographicGuestBook() {
   useEffect(() => {
     fetchComments();
     
-    // Set up real-time subscription
+    // Set up real-time subscription for feedBacks table
     const subscription = supabase
-      .channel('comments_channel')
+      .channel('feedbacks_channel')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'comments' },
-        () => {
+        { event: '*', schema: 'public', table: 'feedBacks' },
+        (payload) => {
+          console.log('Real-time update received:', payload);
           fetchComments();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
       subscription.unsubscribe();
@@ -63,26 +66,47 @@ export function HolographicGuestBook() {
 
   const fetchComments = async () => {
     try {
+      console.log('Fetching comments from Supabase...');
       const { data, error } = await supabase
-        .from('comments')
+        .from('feedBacks')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Fetched data:', data);
+
+      if (!data || data.length === 0) {
+        console.warn('No comments found in database');
+        setCommentsData([]);
+        setLoading(false);
+        return;
+      }
 
       // Transform data to match component structure
+      // Note: Supabase column names are PascalCase (Name, Comment, Rating)
       const transformedData = data.map(item => ({
-        name: item.name || 'Anonymous',
-        tagline: item.tagline || item.title || 'Guest',
-        comment: item.comment || item.feedback || item.message || '',
-        rating: item.rating || 5,
-        timestamp: formatTimestamp(item.created_at || item.timestamp)
+        name: item.Name || item.name || 'Anonymous',
+        tagline: item.Tagline || item.tagline || item.Title || item.title || 'Guest',
+        comment: item.Comment || item.comment || item.Feedback || item.feedback || item.Message || item.message || '',
+        rating: item.Rating || item.rating || 5,
+        timestamp: formatTimestamp(item.created_at || item.Created_at || item.timestamp)
       }));
 
+      console.log('Transformed data:', transformedData);
       setCommentsData(transformedData);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching comments:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
       setLoading(false);
     }
   };
