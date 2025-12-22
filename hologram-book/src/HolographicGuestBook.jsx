@@ -178,8 +178,8 @@ export function HolographicGuestBook() {
     { top: "88%", left: "96%" }, // bottom-right
     { top: "46%", left: "-19%" },  // left middle
     { top: "50%", left: "95%" }, // right middle
-    { top: "20%", left: "4%" },  // upper-left side
-    { top: "76%", left: "88%" }, // lower-right side
+   // { top: "20%", left: "4%" },  // upper-left side
+   // { top: "76%", left: "88%" }, // lower-right side
   ];
 
   // Show loading state
